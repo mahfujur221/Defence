@@ -22,13 +22,19 @@
     <meta charset="UTF-8">
     <title>Leaf Classifier</title>
     <link rel="stylesheet" href="static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h2>Upload a Leaf Image</h2>
-    <form action="/predict" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <br><br>
-        <button type="submit">Classify</button>
-    </form>
+    <div class="container">
+        <div class="card">
+            <h1>Leaf Classifier 🌿</h1>
+            <p>Upload an image of a leaf, and the AI will tell you which plant it belongs to.</p>
+            <form action="/predict" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button type="submit">Classify Leaf</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
+
