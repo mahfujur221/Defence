@@ -1,67 +1,63 @@
 from flask import Flask, render_template, request
-import os
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from werkzeug.utils import secure_filename
+import os
 
-# Initialize app
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Load trained model
-model = load_model("leaf_classifier_model.h5")
+# Load your trained model
+model = load_model("mobilenetv2_leaf_classifier2.h5")
 
-# Load class labels from your dataset
-test_datagen = ImageDataGenerator(rescale=1./255)
-test_gen = test_datagen.flow_from_directory(
-    r"D:\Project\Leaf Class\dataset\test",  # Path to your test folder
-    target_size=(224, 224),
-    batch_size=32,
-    class_mode='categorical',
-    shuffle=False
-)
-class_labels = list(test_gen.class_indices.keys())
+# Class labels (your 12 classes)
+class_labels = [
+    'Artocarpus heterophyllus', 'Bambusa vulgaris', 'Coccinia grandis',
+    'Codiaeum variegatum', 'Ficus benghalensis', 'Foliorum Forma - Orbicularis',
+    'Herbarium Oxalis', 'Hevea brasiliensis', 'Indonesian Bay',
+    'Lembu', 'Mangifera indica', 'Psidium guajava'
+]
 
-CONFIDENCE_THRESHOLD = 0.70  # Set your threshold
+UPLOAD_FOLDER = 'static/uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html')  # shows upload page
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
-        return render_template('result.html', label="No file uploaded", img_path=None)
+        return "No file uploaded", 400
 
     file = request.files['file']
     if file.filename == '':
-        return render_template('result.html', label="No selected file", img_path=None)
+        return "No file selected", 400
 
-    if file:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(filepath)
 
-        # --- Preprocess the image ---
-        img = image.load_img(filepath, target_size=(224, 224))
-        img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
+    # Load and preprocess image
+    img = image.load_img(filepath, target_size=(224, 224))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-        # --- Predict ---
-        prediction = model.predict(img_array)[0]
-        top_idx = np.argmax(prediction)
-        confidence = prediction[top_idx]
+    # Prediction
+    prediction = model.predict(img_array)
+    confidence = np.max(prediction)
+    predicted_class = np.argmax(prediction, axis=1)[0]
+    predicted_label = class_labels[predicted_class]
 
-        if confidence < CONFIDENCE_THRESHOLD:
-            label = f"❌ This leaf is unknown to me (Confidence: {confidence*100:.2f}%)"
-        else:
-            label = f"🪴 Predicted: {class_labels[top_idx]} ({confidence*100:.2f}% confidence)"
+    # If confidence too low, mark as unknown
+    threshold = 0.6
+    if confidence < threshold:
+        predicted_label = "Unknown Leaf"
 
-        return render_template('result.html', label=label, img_path=filepath)
+    return render_template(
+        'result.html',
+        leaf_name=predicted_label,
+        confidence=f"{confidence*100:.2f}%",
+        image_path=filepath
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

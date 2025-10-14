@@ -1,0 +1,35 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result 🌿</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Prediction Result</h1>
+        {% if img_path %}
+            <img src="{{ url_for('static', filename='uploads/' + img_path.split('/')[-1]) }}" alt="Uploaded Leaf" width="300">
+        {% endif %}
+        <h2>{{ label }}</h2>
+        <a href="/">🔙 Try Another</a>
+    </div>
+</body>
+</html>
+ -->
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <h2>Prediction Result</h2>
+    <img src="{{ image_path }}" alt="Uploaded Leaf" width="300">
+    <h3>Predicted Leaf: {{ leaf_name }}</h3>
+    <p>Confidence: {{ confidence }}</p>
+    <br>
+    <a href="/">Try another image</a>
+</body>
+</html>
