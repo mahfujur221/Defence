@@ -6,10 +6,8 @@ import os
 
 app = Flask(__name__)
 
-# Load your trained model
 model = load_model("mobilenetv2_leaf_classifier2.h5")
 
-# Class labels (your 12 classes)
 class_labels = [
     'Artocarpus heterophyllus', 'Bambusa vulgaris', 'Coccinia grandis',
     'Codiaeum variegatum', 'Ficus benghalensis', 'Foliorum Forma - Orbicularis',
