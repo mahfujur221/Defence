@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaf Classifier 🌿</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 Leaf Classification System</h1>
+        <p>Upload an image of a leaf to identify its species.</p>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict Leaf</button>
+        </form>
+    </div>
+</body>
+</html>
